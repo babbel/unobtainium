@@ -128,16 +128,26 @@ module Unobtainium
             options['caps.platformName'] = normalized.to_s
           end
 
-          # Make the appium driver behave a little more like Selenium by using
-          # the :url key if the normalized label is remote, and setting
-          # appropriate options.
-          set_url = options['appium_lib.server_url']
-          if set_url and options['url'] and not set_url == options['url']
-            warn "You have the remote URL '#{set_url}' set in your options, "\
-              "so we're not replacing it with '#{options['url']}'!"
-          elsif not set_url
-            options['appium_lib.server_url'] = options['url']
+          # There are two ways to set the url and one has to be set
+          # appium_lib.server_url || url
+          # - disallow both being empty
+          # - disallow them being different in case both are set
+          # - otherwise, just take the one that is set and use it for both
+          server_url = options['appium_lib.server_url']
+          other_url = options['url']
+          if server_url == "" and other_url == ""
+            raise "Well.. you do need to set at least 1 url"
           end
+          if (server_url == "" or server_url.nil?)
+            server_url = other_url
+          end
+          if (other_url == "" or other_url.nil?)
+            other_url = server_url
+          end
+          if other_url != server_url
+            raise "You set two different urls, that doesn't work, which one should I take?"
+          end
+          set_url = server_url
 
           # If no app is given, but a browser is requested, we can supplement
           # some information
