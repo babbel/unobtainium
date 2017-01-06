@@ -134,6 +134,11 @@ module Unobtainium
         # Get the driver class.
         load_drivers
         driver_klass = get_driver(label)
+
+        if not driver_klass and opts["extends"]
+          driver_klass = get_driver(opts["extends"])
+        end
+
         if not driver_klass
           raise LoadError, "No driver implementation matching #{label} found, "\
             "aborting!"

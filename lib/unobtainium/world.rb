@@ -169,15 +169,34 @@ module Unobtainium
         stored_opts = ::Unobtainium::Runtime.instance.fetch(option_key)
         options = ::Collapsium::UberHash.new(options)
         options.recursive_merge!(stored_opts)
+        return label, options
       rescue KeyError
-        label, options, _ = ::Unobtainium::Driver.resolve_options(label, options)
       end
 
+      # try to load options with given label
+      begin
+        label, options, _ = ::Unobtainium::Driver.resolve_options(label, options)
+        ::Unobtainium::Runtime.instance.store(option_key, options)
+        return label, options
+      rescue LoadError
+      end
+
+      # if no driver could be found so far, we look for 'extends' keyword
+      if options["extends"].nil?
+        wanted_driver = label
+      else
+        wanted_driver = options["extends"]
+      end
+
+      label, options, _ = ::Unobtainium::Driver.resolve_options(wanted_driver, options)
       # The driver may modify the options; if so, we should let it do that
       # here. That way our key (below) is based on the expanded options.
+      option_key = identifier('options', label, options)
       ::Unobtainium::Runtime.instance.store(option_key, options)
-
       return label, options
+
     end
+
   end # module World
+
 end # module Unobtainium
