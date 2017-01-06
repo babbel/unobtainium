@@ -116,7 +116,17 @@ module Unobtainium
         # rubocop:enable Lint/RescueException
         # :nocov:
       end
-      return ::Unobtainium::Runtime.instance.store_with_if(key, dtor) do
+
+      matches = ::Unobtainium::Runtime.instance.instance_variable_get(:@objects).keys.grep /driver/
+      if matches.length.positive?
+        puts "returning existing driver"
+        # TODO need to check either if this driver is the same as the one we
+        # want OR figure out why the key is still different
+        return ::Unobtainium::Runtime.instance.fetch(matches.first)
+      end
+
+      puts "creating new driver"
+      ::Unobtainium::Runtime.instance.store_with_if(key, dtor) do
         ::Unobtainium::Driver.create(label, options)
       end
     end
@@ -163,38 +173,30 @@ module Unobtainium
         options.delete("base")
       end
 
-      # Do we have options already resolved?
+      # we really need :caps and "desired_capabilities" in our options
+      unless options.has_key?(:caps)
+        options[:caps] = options["desired_capabilities"]
+      end
+      unless options.has_key?("desired_capabilities")
+        options["desired_capabilities"] = options[:caps]
+      end
+
+      # Do we have options already resolved? - then we can exit here
       option_key = identifier('options', label, options)
       begin
         stored_opts = ::Unobtainium::Runtime.instance.fetch(option_key)
         options = ::Collapsium::UberHash.new(options)
         options.recursive_merge!(stored_opts)
-        return label, options
       rescue KeyError
-      end
-
-      # try to load options with given label
-      begin
+        # we don't know that key yet
         label, options, _ = ::Unobtainium::Driver.resolve_options(label, options)
-        ::Unobtainium::Runtime.instance.store(option_key, options)
-        return label, options
-      rescue LoadError
       end
 
-      # if no driver could be found so far, we look for 'extends' keyword
-      if options["extends"].nil?
-        wanted_driver = label
-      else
-        wanted_driver = options["extends"]
-      end
-
-      label, options, _ = ::Unobtainium::Driver.resolve_options(wanted_driver, options)
       # The driver may modify the options; if so, we should let it do that
       # here. That way our key (below) is based on the expanded options.
-      option_key = identifier('options', label, options)
       ::Unobtainium::Runtime.instance.store(option_key, options)
-      return label, options
 
+      return label, options
     end
 
   end # module World
