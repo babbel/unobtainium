@@ -156,6 +156,14 @@ module Unobtainium
           return normalized, options
         end
 
+        def create_driver_for_testdroid(options)
+          caps = Unobtainium::Drivers::Selenium.construct_desired_caps options
+          mydriver = ::Appium::Driver.new
+          mydriver.caps = caps
+          mydriver.custom_url = options['appium_lib']['server_url']
+          mydriver
+        end
+
         ##
         # Create and return a driver instance
         def create(_, options)
@@ -166,9 +174,12 @@ module Unobtainium
           options.delete(:webdriver_compatibility)
 
           # Create & return proxy
-          driver = ::Appium::Driver.new(options)
-          result = DriverProxy.new(driver, compat)
-          return result
+          if options[:caps].keys.any? { |x| x.include? 'testdroid' }
+            driver = create_driver_for_testdroid options
+          else
+            driver = ::Appium::Driver.new(options)
+          end
+          DriverProxy.new(driver, compat)
           # :nocov:
         end
 

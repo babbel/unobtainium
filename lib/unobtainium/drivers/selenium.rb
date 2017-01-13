@@ -89,6 +89,13 @@ module Unobtainium
           # :nocov:
         end
 
+        def construct_desired_caps(options)
+          caps = options[:caps]
+          options.merge! caps
+          options.delete :caps
+          ::Selenium::WebDriver::Remote::Capabilities.new(options)
+        end
+
         private
 
         ##
