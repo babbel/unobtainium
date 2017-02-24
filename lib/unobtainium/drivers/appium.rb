@@ -34,8 +34,17 @@ module Unobtainium
         attr_reader :appium_driver, :selenium_driver
         # Initialize
         def initialize(driver, compatibility = true)
-          @appium_driver = driver
-          @selenium_driver = driver.start_driver
+          puts "\n**********************************\nwe are in initialize driver\n"
+          begin
+            @appium_driver = driver
+            @selenium_driver = driver.start_driver
+          rescue Exception => e
+            if @appium_driver && !@selenium_driver
+              @selenium_driver = @appium_driver.driver
+            else
+              raise e
+            end
+          end
 
           # Prioritize the two different drivers according to whether
           # compatibility with Selenium is more desirable than functionality.
@@ -115,13 +124,12 @@ module Unobtainium
           normalized = normalize_label(label)
           options = ::Collapsium::UberHash.new(options || {})
 
-          # Merge 'caps' and 'desired_capabilities', letting the former win
+          # Merge 'caps' and 'desired_capabilities' into :caps, but leave the
+          # other one untouched
           options[:caps] =
             ::Collapsium::UberHash.new(options['desired_capabilities'])
                                   .recursive_merge(options[:desired_capabilities])
                                   .recursive_merge(options[:caps])
-          options.delete(:desired_capabilities)
-          options.delete('desired_capabilities')
 
           # The label specifies the platform, if no other platform is given.
           if not options['caps.platformName']
@@ -156,14 +164,6 @@ module Unobtainium
           return normalized, options
         end
 
-        def create_driver_for_testdroid(options)
-          caps = Unobtainium::Drivers::Selenium.construct_desired_caps options
-          mydriver = ::Appium::Driver.new
-          mydriver.caps = caps
-          mydriver.custom_url = options['appium_lib']['server_url']
-          mydriver
-        end
-
         ##
         # Create and return a driver instance
         def create(_, options)
@@ -174,10 +174,11 @@ module Unobtainium
           options.delete(:webdriver_compatibility)
 
           # Create & return proxy
+          driver = ::Appium::Driver.new(options)
+          # testdroid does not accept :symbol capabilities
           if options[:caps].keys.any? { |x| x.include? 'testdroid' }
-            driver = create_driver_for_testdroid options
-          else
-            driver = ::Appium::Driver.new(options)
+            new_caps = Unobtainium::Drivers::Selenium.construct_desired_caps options
+            driver.caps = new_caps
           end
           DriverProxy.new(driver, compat)
           # :nocov:
