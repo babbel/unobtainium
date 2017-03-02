@@ -117,15 +117,6 @@ module Unobtainium
         # :nocov:
       end
 
-      matches = ::Unobtainium::Runtime.instance.instance_variable_get(:@objects).keys.grep /driver/
-      if matches.length.positive?
-        puts "returning existing driver"
-        # TODO need to check either if this driver is the same as the one we
-        # want OR figure out why the key is still different
-        return ::Unobtainium::Runtime.instance.fetch(matches.first)
-      end
-
-      puts "creating new driver"
       ::Unobtainium::Runtime.instance.store_with_if(key, dtor) do
         ::Unobtainium::Driver.create(label, options)
       end
@@ -181,15 +172,18 @@ module Unobtainium
         options["desired_capabilities"] = options[:caps]
       end
 
-      # Do we have options already resolved? - then we can exit here
-      option_key = identifier('options', label, options)
+      label, options_new, _ = ::Unobtainium::Driver.resolve_options(label, options)
+      option_key = identifier('options', label, options_new)
+
+      # Do we have options already resolved?
+      # then we take what we already have together with the options from the
+      # input and make new options, but store it under the original key
+      # assuming that the key is constructed form the input options
       begin
         stored_opts = ::Unobtainium::Runtime.instance.fetch(option_key)
         options = ::Collapsium::UberHash.new(options)
         options.recursive_merge!(stored_opts)
       rescue KeyError
-        # we don't know that key yet
-        label, options, _ = ::Unobtainium::Driver.resolve_options(label, options)
       end
 
       # The driver may modify the options; if so, we should let it do that
