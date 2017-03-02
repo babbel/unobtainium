@@ -34,28 +34,15 @@ module Unobtainium
         attr_reader :appium_driver, :selenium_driver
         # Initialize
         def initialize(driver, compatibility = true)
-          puts "\n**********************************\nwe are in initialize driver\n"
+          @appium_driver = driver
           begin
-            @appium_driver = driver
-            @selenium_driver = driver.start_driver
+            new_driver = driver.start_driver
+            @selenium_driver = new_driver
           rescue Exception => e
-            if @appium_driver && !@selenium_driver
-              @selenium_driver = @appium_driver.driver
-            else
-              raise e
-            end
+            puts "Exception in initialize appium driver: #{e}"
+            @selenium_driver = @appium_driver.driver
           end
-
-          # Prioritize the two different drivers according to whether
-          # compatibility with Selenium is more desirable than functionality.
-          # Note that this only matters when both classes implement the same
-          # methods! Differently named methods will always be supported either
-          # way.
-          if compatibility
-            @drivers = [@selenium_driver, @appium_driver]
-          else
-            @drivers = [@appium_driver, @selenium_driver]
-          end
+          @drivers = [@appium_driver, @selenium_driver]
         end
 
         ##
@@ -124,12 +111,16 @@ module Unobtainium
           normalized = normalize_label(label)
           options = ::Collapsium::UberHash.new(options || {})
 
-          # Merge 'caps' and 'desired_capabilities' into :caps, but leave the
-          # other one untouched
-          options[:caps] =
-            ::Collapsium::UberHash.new(options['desired_capabilities'])
-                                  .recursive_merge(options[:desired_capabilities])
-                                  .recursive_merge(options[:caps])
+          # if it's testdroid, we do not change and merge anything here
+          unless is_testdroid_testrun? options
+            # Merge 'caps' and 'desired_capabilities' into :caps, but leave the
+            # other one untouched
+            options[:caps] = ::Collapsium::UberHash.new(options['desired_capabilities'])
+                               .recursive_merge(options[:desired_capabilities])
+                               .recursive_merge(options[:caps])
+            options.delete(:desired_capabilities)
+            options.delete('desired_capabilities')
+          end
 
           # The label specifies the platform, if no other platform is given.
           if not options['caps.platformName']
@@ -176,15 +167,24 @@ module Unobtainium
           # Create & return proxy
           driver = ::Appium::Driver.new(options)
           # testdroid does not accept :symbol capabilities
-          if options[:caps].keys.any? { |x| x.include? 'testdroid' }
+          if is_testdroid_testrun? options
             new_caps = Unobtainium::Drivers::Selenium.construct_desired_caps options
             driver.caps = new_caps
           end
-          DriverProxy.new(driver, compat)
+          driver_proxy = DriverProxy.new(driver, compat)
+
+          timeout = driver.caps["timeout"] || 30
+          driver.instance_variable_set(:@user_set_timeout, timeout)
+
+          return driver_proxy.appium_driver
           # :nocov:
         end
 
         private
+
+        def is_testdroid_testrun?(options)
+          options[:caps].keys.any? { |x| x.include? 'testdroid' }
+        end
 
         ##
         # If the driver options include a request for a browser, we can
