@@ -168,7 +168,7 @@ module Unobtainium
           driver = ::Appium::Driver.new(options)
           # testdroid does not accept :symbol capabilities
           if is_testdroid_testrun? options
-            new_caps = Unobtainium::Drivers::Selenium.construct_desired_caps options
+            new_caps = Unobtainium::Drivers::Selenium.construct_desired_caps_for_testdroid options
             driver.caps = new_caps
           end
           driver_proxy = DriverProxy.new(driver, compat)

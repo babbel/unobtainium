@@ -89,10 +89,16 @@ module Unobtainium
           # :nocov:
         end
 
-        def construct_desired_caps(options)
-          caps = options[:caps]
+        def construct_desired_caps_for_testdroid(options)
+          caps = options[:caps] || {}
           options.merge! caps
           options.delete :caps
+          options["desired_capabilities"].keys.each do |key|
+            unless options.keys.include? key
+              options[key] = options["desired_capabilities"][key]
+            end
+            options["desired_capabilities"].delete key
+          end
           ::Selenium::WebDriver::Remote::Capabilities.new(options)
         end
 
