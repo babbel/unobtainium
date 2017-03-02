@@ -17,8 +17,8 @@ require 'unobtainium/version'
 Gem::Specification.new do |spec|
   spec.name          = "unobtainium"
   spec.version       = Unobtainium::VERSION
-  spec.authors       = ["Jens Finkhaeuser"]
-  spec.email         = ["jens@finkhaeuser.de"]
+  spec.authors       = ["Jens Finkhaeuser", "Jana Rekittke"]
+  spec.email         = ["jens@finkhaeuser.de", "jrekittke@babbel.com"]
   spec.description   = %q(
     Unobtainium wraps Selenium and Appium in a simple driver abstraction so that
     test code can more easily cover desktop browsers, mobile browsers and mobile
@@ -38,18 +38,18 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.required_ruby_version = '>= 2.2'
+  spec.required_ruby_version = '>= 2.3'
 
   spec.requirements  = "Either or all of 'selenium-webdriver', 'appium_lib', "\
                        "'phantomjs'"
 
-  spec.add_development_dependency "bundler", "~> 1.13"
+  spec.add_development_dependency "bundler", "~> 1.14"
   spec.add_development_dependency "rubocop", "~> 0.46"
   spec.add_development_dependency "rake", "~> 11.3"
   spec.add_development_dependency "rspec", "~> 3.5"
   spec.add_development_dependency "simplecov", "~> 0.12"
   spec.add_development_dependency "yard", "~> 0.9"
-  spec.add_development_dependency "appium_lib", ">= 9.1"
+  spec.add_development_dependency "appium_lib"
   spec.add_development_dependency "selenium-webdriver"
   spec.add_development_dependency "chromedriver-helper"
   spec.add_development_dependency "phantomjs"
