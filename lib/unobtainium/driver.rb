@@ -225,12 +225,36 @@ module Unobtainium
     ##
     # Map any missing method to the driver implementation
     def method_missing(meth, *args, &block)
-      if not @impl.nil? and @impl.respond_to?(meth)
-        return @impl.send(meth.to_s, *args, &block)
+      if @impl.nil?
+        # if we end up here, neither our driver @impl nor its parent driver
+        # @impl.driver support the current method meth
+        # :nocov:
+        return super
+        # :nocov:
       end
-      # :nocov:
-      return super
-      # :nocov:
+
+      correct_driver = nil
+      if @impl.respond_to?(meth)
+        correct_driver = @impl
+      elsif @impl.instance_variables.include?(:@driver) and @impl.driver.respond_to?(meth)
+        correct_driver = @impl.driver
+      else
+        raise "we have a driver #{impl}, but it does not respond to #{meth}."
+      end
+      timeout = @impl.caps["timeout"] || 30
+      last_error = ""
+
+      while timeout > 0
+        timeout -= 1
+        begin
+          return correct_driver.send(meth.to_s, *args, &block)
+        rescue Exception => e
+          last_error = e
+        end
+        sleep 1
+      end
+
+      raise last_error
     end
 
     private
