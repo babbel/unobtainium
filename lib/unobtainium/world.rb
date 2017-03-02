@@ -165,10 +165,10 @@ module Unobtainium
       end
 
       # we really need :caps and "desired_capabilities" in our options
-      unless options.has_key?(:caps)
+      unless options.key?(:caps)
         options[:caps] = options["desired_capabilities"]
       end
-      unless options.has_key?("desired_capabilities")
+      unless options.key?("desired_capabilities")
         options["desired_capabilities"] = options[:caps]
       end
 
@@ -183,7 +183,8 @@ module Unobtainium
         stored_opts = ::Unobtainium::Runtime.instance.fetch(option_key)
         options = ::Collapsium::UberHash.new(options)
         options.recursive_merge!(stored_opts)
-      rescue KeyError
+      rescue KeyError => e
+        puts e
       end
 
       # The driver may modify the options; if so, we should let it do that

@@ -13,7 +13,6 @@ require 'unobtainium/version'
 
 # rubocop:disable Style/UnneededPercentQ, Style/ExtraSpacing
 # rubocop:disable Style/SpaceAroundOperators
-# rubocop:disable Metrics/BlockLength
 Gem::Specification.new do |spec|
   spec.name          = "unobtainium"
   spec.version       = Unobtainium::VERSION

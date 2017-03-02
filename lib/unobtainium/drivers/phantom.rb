@@ -142,7 +142,7 @@ module Unobtainium
 
           # Wait for the server to open a port.
           timeout = CONNECT_TIMEOUT
-          while timeout > 0 and not port_open?(host, port)
+          while timeout.positive? and not port_open?(host, port)
             sleep 1
             timeout -= 1
           end

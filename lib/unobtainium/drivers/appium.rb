@@ -33,12 +33,12 @@ module Unobtainium
         ##
         attr_reader :appium_driver, :selenium_driver
         # Initialize
-        def initialize(driver, compatibility = true)
+        def initialize(driver, _compatibility = true)
           @appium_driver = driver
           begin
             new_driver = driver.start_driver
             @selenium_driver = new_driver
-          rescue Exception => e
+          rescue StandardError => e
             puts "Exception in initialize appium driver: #{e}"
             @selenium_driver = @appium_driver.driver
           end
@@ -112,12 +112,12 @@ module Unobtainium
           options = ::Collapsium::UberHash.new(options || {})
 
           # if it's testdroid, we do not change and merge anything here
-          unless is_testdroid_testrun? options
+          unless testdroid_testrun? options
             # Merge 'caps' and 'desired_capabilities' into :caps, but leave the
             # other one untouched
             options[:caps] = ::Collapsium::UberHash.new(options['desired_capabilities'])
-                               .recursive_merge(options[:desired_capabilities])
-                               .recursive_merge(options[:caps])
+                                                   .recursive_merge(options[:desired_capabilities])
+                                                   .recursive_merge(options[:caps])
             options.delete(:desired_capabilities)
             options.delete('desired_capabilities')
           end
@@ -137,16 +137,15 @@ module Unobtainium
           if server_url == "" and other_url == ""
             raise "Well.. you do need to set at least 1 url"
           end
-          if (server_url == "" or server_url.nil?)
-            server_url = other_url
+          if server_url == "" or server_url.nil?
+            options['appium_lib.server_url'] = other_url
           end
-          if (other_url == "" or other_url.nil?)
-            other_url = server_url
+          if other_url == "" or other_url.nil?
+            options['url'] = server_url
           end
           if other_url != server_url
             raise "You set two different urls, that doesn't work, which one should I take?"
           end
-          set_url = server_url
 
           # If no app is given, but a browser is requested, we can supplement
           # some information
@@ -167,7 +166,7 @@ module Unobtainium
           # Create & return proxy
           driver = ::Appium::Driver.new(options)
           # testdroid does not accept :symbol capabilities
-          if is_testdroid_testrun? options
+          if testdroid_testrun? options
             new_caps = Unobtainium::Drivers::Selenium.construct_desired_caps_for_testdroid options
             driver.caps = new_caps
           end
@@ -182,7 +181,7 @@ module Unobtainium
 
         private
 
-        def is_testdroid_testrun?(options)
+        def testdroid_testrun?(options)
           options[:caps].keys.any? { |x| x.include? 'testdroid' }
         end
 

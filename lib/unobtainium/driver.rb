@@ -244,11 +244,11 @@ module Unobtainium
       timeout = @impl.caps["timeout"] || 30
       last_error = ""
 
-      while timeout > 0
+      while timeout.positive?
         timeout -= 1
         begin
           return correct_driver.send(meth.to_s, *args, &block)
-        rescue Exception => e
+        rescue StandardError => e
           last_error = e
         end
         sleep 1
