@@ -6,8 +6,6 @@
 # Copyright (c) 2016 Jens Finkhaeuser and other unobtainium contributors.
 # All rights reserved.
 #
-require 'sys-proctable'
-
 module Unobtainium
   # @api private
   # Contains support code
@@ -127,8 +125,13 @@ module Unobtainium
         end
 
         if [:children, :all].include?(scope)
-          children = ::Sys::ProcTable.ps.select { |p| p.ppid == @pid }
-          to_send += children.collect(&:pid)
+          pid = Process.pid
+          pipe = IO.popen("ps -ef | grep #{pid}")
+          child_pids = pipe.readlines.map do |line|
+            parts = line.split(/\s+/)
+            parts[2] if parts[3] == pid.to_s and parts[2] != pipe.pid.to_s
+          end.compact
+          to_send += child_pids.collect { |x| x.to_i }
         end
 
         # Alright, send the signal!

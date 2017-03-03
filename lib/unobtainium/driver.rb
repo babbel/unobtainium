@@ -1,4 +1,3 @@
-
 # coding: utf-8
 #
 # unobtainium
@@ -135,7 +134,7 @@ module Unobtainium
         load_drivers
         driver_klass = get_driver(label)
 
-        if not driver_klass and opts["extends"]
+        if !driver_klass and !opts.nil? and opts["extends"]
           driver_klass = get_driver(opts["extends"])
         end
 
@@ -241,7 +240,7 @@ module Unobtainium
       else
         raise "we have a driver #{impl}, but it does not respond to #{meth}."
       end
-      timeout = @impl.caps["timeout"] || 30
+      timeout = @impl.instance_variables.include?(:@caps)? @impl.caps["timeout"] : 30
       last_error = ""
 
       while timeout.positive?

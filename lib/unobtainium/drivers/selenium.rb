@@ -57,10 +57,10 @@ module Unobtainium
 
         ##
         # Selenium really wants symbol keys for the options
-        def resolve_options(label, options)
+        def resolve_options(label, orig_options)
           # Normalize label and options
           normalized = normalize_label(label)
-          options = ::Collapsium::UberHash.new(options || {})
+          options = ::Collapsium::UberHash.new(orig_options || {})
 
           # Merge 'caps' and 'desired_capabilities', letting the latter win
           options[:desired_capabilities] =
