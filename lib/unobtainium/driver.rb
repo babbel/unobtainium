@@ -225,11 +225,13 @@ module Unobtainium
     # Map any missing method to the driver implementation
     def method_missing(meth, *args, &block)
       if @impl.nil?
-        # if we end up here, neither our driver @impl nor its parent driver
-        # @impl.driver support the current method meth
         # :nocov:
         return super
         # :nocov:
+      end
+
+      unless @impl.to_s.include? "Appium"
+        return @impl.send(meth.to_s, *args, &block)
       end
 
       correct_driver = nil

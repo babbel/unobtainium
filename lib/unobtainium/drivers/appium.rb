@@ -182,12 +182,8 @@ module Unobtainium
             new_caps = Unobtainium::Drivers::Selenium.construct_desired_caps_for_testdroid options
             driver.caps = new_caps
           end
-          driver_proxy = DriverProxy.new(driver, compat)
 
-          timeout = driver.caps["timeout"] || 30
-          driver.instance_variable_set(:@user_set_timeout, timeout)
-
-          return driver_proxy.appium_driver
+          return DriverProxy.new(driver, compat).appium_driver
           # :nocov:
         end
 

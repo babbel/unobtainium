@@ -165,7 +165,7 @@ module Unobtainium
       end
 
       # we really need :caps and "desired_capabilities" in our options
-      unless options.key?(:caps)
+      unless options.has_key?(:caps) # rubocop:disable Style/PreferredHashMethods
         options[:caps] = options["desired_capabilities"]
       end
       unless options.key?("desired_capabilities")
