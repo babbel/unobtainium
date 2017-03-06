@@ -183,8 +183,7 @@ module Unobtainium
         stored_opts = ::Unobtainium::Runtime.instance.fetch(option_key)
         options = ::Collapsium::UberHash.new(options)
         options.recursive_merge!(stored_opts)
-      rescue KeyError => e
-        puts e
+      rescue KeyError # rubocop:disable Lint/HandleExceptions
       end
 
       # The driver may modify the options; if so, we should let it do that

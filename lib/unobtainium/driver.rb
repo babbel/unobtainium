@@ -240,7 +240,7 @@ module Unobtainium
       else
         raise "we have a driver #{impl}, but it does not respond to #{meth}."
       end
-      timeout = @impl.instance_variables.include?(:@caps)? @impl.caps["timeout"] : 30
+      timeout = @impl.instance_variables.include?(:@caps) ? @impl.caps["timeout"] : 30
       last_error = ""
 
       while timeout.positive?

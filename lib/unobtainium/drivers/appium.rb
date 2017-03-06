@@ -33,7 +33,7 @@ module Unobtainium
         ##
         attr_reader :appium_driver, :selenium_driver
         # Initialize
-        def initialize(driver, _compatibility = true)
+        def initialize(driver, compatibility = true)
           @appium_driver = driver
           begin
             new_driver = driver.start_driver
@@ -42,7 +42,11 @@ module Unobtainium
             puts "Exception in initialize appium driver: #{e}"
             @selenium_driver = @appium_driver.driver
           end
-          @drivers = [@appium_driver, @selenium_driver]
+          if compatibility
+            @drivers = [@selenium_driver, @appium_driver]
+          else
+            @drivers = [@appium_driver, @selenium_driver]
+          end
         end
 
         ##
@@ -104,6 +108,10 @@ module Unobtainium
                 err.backtrace
         end
 
+        def option_set?(option)
+          option == "" or option.nil? ? false : true
+        end
+
         ##
         # Sanitize options, and expand the :browser key, if present.
         def resolve_options(label, options)
@@ -134,16 +142,20 @@ module Unobtainium
           # - otherwise, just take the one that is set and use it for both
           server_url = options['appium_lib.server_url']
           other_url = options['url']
-          if server_url == "" and other_url == ""
-            raise "Well.. you do need to set at least 1 url"
+
+          if not option_set? server_url and not option_set? other_url and testdroid_testrun? options
+            raise "Well.. you have to set at least 1 url for a remote run"
           end
-          if server_url == "" or server_url.nil?
+
+          if option_set? other_url and not option_set? server_url
             options['appium_lib.server_url'] = other_url
           end
-          if other_url == "" or other_url.nil?
+
+          if option_set? server_url and not option_set? other_url
             options['url'] = server_url
           end
-          if other_url != server_url
+
+          if options['url'] != options['appium_lib.server_url']
             raise "You set two different urls, that doesn't work, which one should I take?"
           end
 
@@ -182,7 +194,11 @@ module Unobtainium
         private
 
         def testdroid_testrun?(options)
-          options[:caps].keys.any? { |x| x.include? 'testdroid' }
+          if options.key?(:caps)
+            options[:caps].keys.any? { |x| x.to_s.include? 'testdroid' }
+          else
+            false
+          end
         end
 
         ##
