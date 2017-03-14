@@ -231,7 +231,7 @@ module Unobtainium
       end
 
       unless @impl.to_s.include? "Appium"
-        return @impl.send(meth.to_s, *args, &block)
+        return @impl.send(meth, *args, &block)
       end
 
       correct_driver = nil
@@ -248,7 +248,7 @@ module Unobtainium
       while timeout.positive?
         timeout -= 1
         begin
-          return correct_driver.send(meth.to_s, *args, &block)
+          return correct_driver.send(meth, *args, &block)
         rescue StandardError => e
           last_error = e
         end

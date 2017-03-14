@@ -176,7 +176,7 @@ describe ::Unobtainium::Drivers::Appium do
         expect(resolved['appium_lib.server_url']).to eql 'test'
       end
 
-      it "uses 'appium_lib.server_url' when nothing else is given" do
+      it "sets options.url to whatever is set in 'appium_lib.server_url' if nothing else is given" do
         appium_lib_options = {
           appium_lib: {
             server_url: 'test'
@@ -184,6 +184,15 @@ describe ::Unobtainium::Drivers::Appium do
         }
         _, resolved = tester.resolve_options(:iphone, appium_lib_options)
         expect(resolved['url']).to eql 'test'
+      end
+
+      it "does not change the value of 'appium_lib.server_url' if nothing else is given" do
+        appium_lib_options = {
+          appium_lib: {
+            server_url: 'test'
+          }
+        }
+        _, resolved = tester.resolve_options(:iphone, appium_lib_options)
         expect(resolved['appium_lib.server_url']).to eql 'test'
       end
 

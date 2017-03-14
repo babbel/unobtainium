@@ -68,7 +68,7 @@ describe ::Unobtainium::Support::PortScanner do
                           * ::Unobtainium::Support::PortScanner::RETRY_DELAY
       expected_max_time = ::Unobtainium::Support::PortScanner::MAX_RETRIES \
                           * ::Unobtainium::Support::PortScanner::RETRY_DELAY * 2
-      expect(elapsed).to be_between expected_min_time, expected_max_time
+      expect(elapsed).to be_between(expected_min_time, expected_max_time)
     end
   end
 

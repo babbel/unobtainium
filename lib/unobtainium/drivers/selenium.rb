@@ -90,9 +90,7 @@ module Unobtainium
         end
 
         def construct_desired_caps_for_testdroid(options)
-          caps = options[:caps] || {}
-          options.merge! caps
-          options.delete :caps
+          options.merge!(options.delete(:caps) || {})
           options["desired_capabilities"].keys.each do |key|
             unless options.keys.include? key
               options[key] = options["desired_capabilities"][key]

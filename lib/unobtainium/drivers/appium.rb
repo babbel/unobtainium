@@ -109,7 +109,7 @@ module Unobtainium
         end
 
         def option_set?(option)
-          option == "" or option.nil? ? false : true
+          !option.nil? and !option.empty?
         end
 
         ##
@@ -143,7 +143,7 @@ module Unobtainium
           server_url = options['appium_lib.server_url']
           other_url = options['url']
 
-          if not option_set? server_url and not option_set? other_url and testdroid_testrun? options
+          if !option_set?(server_url) && !option_set?(other_url) && testdroid_testrun?(options)
             raise "Well.. you have to set at least 1 url for a remote run"
           end
 

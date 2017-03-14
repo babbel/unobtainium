@@ -156,10 +156,7 @@ module Unobtainium
       private
 
       def close(channel)
-        if channel.nil?
-          return
-        end
-        channel.close
+        channel&.close
       end
 
       def cleanup(all = false)
