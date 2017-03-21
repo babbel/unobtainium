@@ -16,6 +16,16 @@ module Unobtainium
   # Contains driver implementations
   module Drivers
 
+    public
+
+    def self.testdroid_testrun?(options)
+      if options.key?(:caps)
+        options[:caps].keys.any? { |x| x.to_s.include? 'testdroid' }
+      else
+        false
+      end
+    end
+
     ##
     # Driver implementation wrapping the appium_lib gem.
     class Appium
@@ -33,7 +43,9 @@ module Unobtainium
         ##
         attr_reader :appium_driver, :selenium_driver
         # Initialize
-        def initialize(driver, compatibility = true)
+        def initialize(driver, compatibility)
+          options = {caps: driver.instance_variable_get(:@caps).instance_variable_get(:@capabilities)}
+
           @appium_driver = driver
           begin
             new_driver = driver.start_driver
@@ -42,11 +54,18 @@ module Unobtainium
             puts "Exception in initialize appium driver: #{e}"
             @selenium_driver = @appium_driver.driver
           end
+
+          if Unobtainium::Drivers.testdroid_testrun? options
+            @drivers = [@appium_driver, @selenium_driver]
+            return @drivers
+          end
+
           if compatibility
             @drivers = [@selenium_driver, @appium_driver]
           else
             @drivers = [@appium_driver, @selenium_driver]
           end
+
         end
 
         ##
@@ -120,7 +139,7 @@ module Unobtainium
           options = ::Collapsium::UberHash.new(options || {})
 
           # if it's testdroid, we do not change and merge anything here
-          unless testdroid_testrun? options
+          unless Unobtainium::Drivers.testdroid_testrun? options
             # Merge 'caps' and 'desired_capabilities' into :caps, but leave the
             # other one untouched
             options[:caps] = ::Collapsium::UberHash.new(options['desired_capabilities'])
@@ -143,7 +162,7 @@ module Unobtainium
           server_url = options['appium_lib.server_url']
           other_url = options['url']
 
-          if !option_set?(server_url) && !option_set?(other_url) && testdroid_testrun?(options)
+          if !option_set?(server_url) && !option_set?(other_url) && Unobtainium::Drivers.testdroid_testrun?(options)
             raise "Well.. you have to set at least 1 url for a remote run"
           end
 
@@ -178,7 +197,7 @@ module Unobtainium
           # Create & return proxy
           driver = ::Appium::Driver.new(options)
           # testdroid does not accept :symbol capabilities
-          if testdroid_testrun? options
+          if Unobtainium::Drivers.testdroid_testrun? options
             new_caps = Unobtainium::Drivers::Selenium.construct_desired_caps_for_testdroid options
             driver.caps = new_caps
           end
@@ -188,14 +207,6 @@ module Unobtainium
         end
 
         private
-
-        def testdroid_testrun?(options)
-          if options.key?(:caps)
-            options[:caps].keys.any? { |x| x.to_s.include? 'testdroid' }
-          else
-            false
-          end
-        end
 
         ##
         # If the driver options include a request for a browser, we can
