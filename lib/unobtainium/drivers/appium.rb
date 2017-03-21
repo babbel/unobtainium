@@ -35,13 +35,13 @@ module Unobtainium
         # Initialize
         def initialize(driver, compatibility = true)
           @appium_driver = driver
-          @selenium_driver = driver.start_driver
-
-          # Prioritize the two different drivers according to whether
-          # compatibility with Selenium is more desirable than functionality.
-          # Note that this only matters when both classes implement the same
-          # methods! Differently named methods will always be supported either
-          # way.
+          begin
+            new_driver = driver.start_driver
+            @selenium_driver = new_driver
+          rescue StandardError => e
+            puts "Exception in initialize appium driver: #{e}"
+            @selenium_driver = @appium_driver.driver
+          end
           if compatibility
             @drivers = [@selenium_driver, @appium_driver]
           else
@@ -108,6 +108,10 @@ module Unobtainium
                 err.backtrace
         end
 
+        def option_set?(option)
+          !option.nil? and !option.empty?
+        end
+
         ##
         # Sanitize options, and expand the :browser key, if present.
         def resolve_options(label, options)
@@ -115,28 +119,44 @@ module Unobtainium
           normalized = normalize_label(label)
           options = ::Collapsium::UberHash.new(options || {})
 
-          # Merge 'caps' and 'desired_capabilities', letting the former win
-          options[:caps] =
-            ::Collapsium::UberHash.new(options['desired_capabilities'])
-                                  .recursive_merge(options[:desired_capabilities])
-                                  .recursive_merge(options[:caps])
-          options.delete(:desired_capabilities)
-          options.delete('desired_capabilities')
+          # if it's testdroid, we do not change and merge anything here
+          unless testdroid_testrun? options
+            # Merge 'caps' and 'desired_capabilities' into :caps, but leave the
+            # other one untouched
+            options[:caps] = ::Collapsium::UberHash.new(options['desired_capabilities'])
+                                                   .recursive_merge(options[:desired_capabilities])
+                                                   .recursive_merge(options[:caps])
+            options.delete(:desired_capabilities)
+            options.delete('desired_capabilities')
+          end
 
           # The label specifies the platform, if no other platform is given.
           if not options['caps.platformName']
             options['caps.platformName'] = normalized.to_s
           end
 
-          # Make the appium driver behave a little more like Selenium by using
-          # the :url key if the normalized label is remote, and setting
-          # appropriate options.
-          set_url = options['appium_lib.server_url']
-          if set_url and options['url'] and not set_url == options['url']
-            warn "You have the remote URL '#{set_url}' set in your options, "\
-              "so we're not replacing it with '#{options['url']}'!"
-          elsif not set_url
-            options['appium_lib.server_url'] = options['url']
+          # There are two ways to set the url and one has to be set
+          # appium_lib.server_url || url
+          # - disallow both being empty
+          # - disallow them being different in case both are set
+          # - otherwise, just take the one that is set and use it for both
+          server_url = options['appium_lib.server_url']
+          other_url = options['url']
+
+          if !option_set?(server_url) && !option_set?(other_url) && testdroid_testrun?(options)
+            raise "Well.. you have to set at least 1 url for a remote run"
+          end
+
+          if option_set? other_url and not option_set? server_url
+            options['appium_lib.server_url'] = other_url
+          end
+
+          if option_set? server_url and not option_set? other_url
+            options['url'] = server_url
+          end
+
+          if options['url'] != options['appium_lib.server_url']
+            raise "You set two different urls, that doesn't work, which one should I take?"
           end
 
           # If no app is given, but a browser is requested, we can supplement
@@ -157,12 +177,25 @@ module Unobtainium
 
           # Create & return proxy
           driver = ::Appium::Driver.new(options)
-          result = DriverProxy.new(driver, compat)
-          return result
+          # testdroid does not accept :symbol capabilities
+          if testdroid_testrun? options
+            new_caps = Unobtainium::Drivers::Selenium.construct_desired_caps_for_testdroid options
+            driver.caps = new_caps
+          end
+
+          return DriverProxy.new(driver, compat).appium_driver
           # :nocov:
         end
 
         private
+
+        def testdroid_testrun?(options)
+          if options.key?(:caps)
+            options[:caps].keys.any? { |x| x.to_s.include? 'testdroid' }
+          else
+            false
+          end
+        end
 
         ##
         # If the driver options include a request for a browser, we can

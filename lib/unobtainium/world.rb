@@ -116,7 +116,8 @@ module Unobtainium
         # rubocop:enable Lint/RescueException
         # :nocov:
       end
-      return ::Unobtainium::Runtime.instance.store_with_if(key, dtor) do
+
+      ::Unobtainium::Runtime.instance.store_with_if(key, dtor) do
         ::Unobtainium::Driver.create(label, options)
       end
     end
@@ -163,14 +164,26 @@ module Unobtainium
         options.delete("base")
       end
 
+      # we really need :caps and "desired_capabilities" in our options
+      unless options.has_key?(:caps) # rubocop:disable Style/PreferredHashMethods
+        options[:caps] = options["desired_capabilities"]
+      end
+      unless options.key?("desired_capabilities")
+        options["desired_capabilities"] = options[:caps]
+      end
+
+      label, options_new, _ = ::Unobtainium::Driver.resolve_options(label, options)
+      option_key = identifier('options', label, options_new)
+
       # Do we have options already resolved?
-      option_key = identifier('options', label, options)
+      # then we take what we already have together with the options from the
+      # input and make new options, but store it under the original key
+      # assuming that the key is constructed form the input options
       begin
         stored_opts = ::Unobtainium::Runtime.instance.fetch(option_key)
         options = ::Collapsium::UberHash.new(options)
         options.recursive_merge!(stored_opts)
-      rescue KeyError
-        label, options, _ = ::Unobtainium::Driver.resolve_options(label, options)
+      rescue KeyError # rubocop:disable Lint/HandleExceptions
       end
 
       # The driver may modify the options; if so, we should let it do that
@@ -179,5 +192,7 @@ module Unobtainium
 
       return label, options
     end
+
   end # module World
+
 end # module Unobtainium

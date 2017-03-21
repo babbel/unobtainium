@@ -1,4 +1,3 @@
-
 # coding: utf-8
 #
 # unobtainium
@@ -134,6 +133,11 @@ module Unobtainium
         # Get the driver class.
         load_drivers
         driver_klass = get_driver(label)
+
+        if !driver_klass and !opts.nil? and opts["extends"]
+          driver_klass = get_driver(opts["extends"])
+        end
+
         if not driver_klass
           raise LoadError, "No driver implementation matching #{label} found, "\
             "aborting!"
@@ -220,12 +224,38 @@ module Unobtainium
     ##
     # Map any missing method to the driver implementation
     def method_missing(meth, *args, &block)
-      if not @impl.nil? and @impl.respond_to?(meth)
-        return @impl.send(meth.to_s, *args, &block)
+      if @impl.nil?
+        # :nocov:
+        return super
+        # :nocov:
       end
-      # :nocov:
-      return super
-      # :nocov:
+
+      unless @impl.to_s.include? "Appium"
+        return @impl.send(meth, *args, &block)
+      end
+
+      correct_driver = nil
+      if @impl.respond_to?(meth)
+        correct_driver = @impl
+      elsif @impl.instance_variables.include?(:@driver) and @impl.driver.respond_to?(meth)
+        correct_driver = @impl.driver
+      else
+        raise "we have a driver #{impl}, but it does not respond to #{meth}."
+      end
+      timeout = @impl.instance_variables.include?(:@caps) ? @impl.caps["timeout"] : 30
+      last_error = ""
+
+      while timeout.positive?
+        timeout -= 1
+        begin
+          return correct_driver.send(meth, *args, &block)
+        rescue StandardError => e
+          last_error = e
+        end
+        sleep 1
+      end
+
+      raise last_error
     end
 
     private

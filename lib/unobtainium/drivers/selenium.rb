@@ -57,10 +57,10 @@ module Unobtainium
 
         ##
         # Selenium really wants symbol keys for the options
-        def resolve_options(label, options)
+        def resolve_options(label, orig_options)
           # Normalize label and options
           normalized = normalize_label(label)
-          options = ::Collapsium::UberHash.new(options || {})
+          options = ::Collapsium::UberHash.new(orig_options || {})
 
           # Merge 'caps' and 'desired_capabilities', letting the latter win
           options[:desired_capabilities] =
@@ -87,6 +87,17 @@ module Unobtainium
           driver = ::Selenium::WebDriver.for(normalize_label(label), options)
           return driver
           # :nocov:
+        end
+
+        def construct_desired_caps_for_testdroid(options)
+          options.merge!(options.delete(:caps) || {})
+          options["desired_capabilities"].keys.each do |key|
+            unless options.keys.include? key
+              options[key] = options["desired_capabilities"][key]
+            end
+            options["desired_capabilities"].delete key
+          end
+          ::Selenium::WebDriver::Remote::Capabilities.new(options)
         end
 
         private

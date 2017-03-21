@@ -1,13 +1,10 @@
 AllCops:
-  TargetRubyVersion: 2.2
+  TargetRubyVersion: 2.3
 
 # Metrics
 
 Metrics/LineLength:
-  Max: 83
-  Details: >-
-    Line length of 80 is ideal for readability and compatibility; we'll accept
-    an extra 3 for minor edge cases.
+  Max: 120
 
 Metrics/MethodLength:
   Max: 35
@@ -29,6 +26,9 @@ Metrics/ClassLength:
 
 Metrics/ModuleLength:
   Max: 300
+
+Metrics/BlockLength:
+  Max: 200
 
 # Style
 
@@ -72,4 +72,7 @@ Style/FileName:
   Enabled: false
 
 Style/SpaceAfterNot:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
   Enabled: false

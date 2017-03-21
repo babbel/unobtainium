@@ -39,11 +39,7 @@ describe ::Unobtainium::Drivers::Selenium do
       ::Unobtainium::Drivers::Selenium::LABELS.each do |normalized, aliases|
         ([normalized] + aliases).each do |label|
           returned_label, _ = tester.resolve_options(label, nil)
-          if normalized == :chromium
-            expect(returned_label).to eql :chrome # chromedriver
-          else
-            expect(returned_label).to eql normalized
-          end
+          expect(returned_label).to eql normalized
         end
       end
     end
@@ -144,6 +140,7 @@ describe ::Unobtainium::Drivers::Selenium do
             },
           },
         }
+
         label, resolved = tester.resolve_options(:chromium, opts)
 
         expect(resolved[:desired_capabilities]["chromeOptions"]["binary"]).to \

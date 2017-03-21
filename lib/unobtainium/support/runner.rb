@@ -6,8 +6,6 @@
 # Copyright (c) 2016 Jens Finkhaeuser and other unobtainium contributors.
 # All rights reserved.
 #
-require 'sys-proctable'
-
 module Unobtainium
   # @api private
   # Contains support code
@@ -127,19 +125,23 @@ module Unobtainium
         end
 
         if [:children, :all].include?(scope)
-          children = ::Sys::ProcTable.ps.select { |p| p.ppid == @pid }
-          to_send += children.collect(&:pid)
+          pid = Process.pid
+          pipe = IO.popen("ps -ef | grep #{pid}")
+          child_pids = pipe.readlines.map do |line|
+            parts = line.split(/\s+/)
+            parts[2] if parts[3] == pid.to_s and parts[2] != pipe.pid.to_s
+          end.compact
+          to_send += child_pids.collect(&:to_i)
         end
 
         # Alright, send the signal!
-        to_send.each do |pid|
-          # rubocop:disable Lint/HandleExceptions
+        to_send.each do |current_pid|
           begin
-            Process.kill(signal, pid)
-          rescue
+            Process.kill(signal, current_pid)
+          rescue Exception => e # rubocop:disable Lint/RescueException
+            puts e
             # If the kill didn't work, we don't really care.
           end
-          # rubocop:enable Lint/HandleExceptions
         end
       end
 
@@ -153,31 +155,26 @@ module Unobtainium
 
       private
 
+      def close(channel)
+        channel&.close
+      end
+
       def cleanup(all = false)
         @pid = nil
-        # rubocop:disable Style/GuardClause
-        if not @wout.nil?
-          @wout.close
-          @wout = nil
-        end
-        if not @werr.nil?
-          @werr.close
-          @werr = nil
-        end
 
-        if not all
+        close @wout
+        @wout = nil
+        close @werr
+        @werr = nil
+
+        unless all
           return
         end
 
-        if not @stdout.nil?
-          @stdout.close
-          @stdout = nil
-        end
-        if not @stderr.nil?
-          @stderr.close
-          @stderr = nil
-        end
-        # rubocop:enable Style/GuardClause
+        close @stdout
+        @stdout = nil
+        close @stderr
+        @stderr = nil
       end
     end # class Runner
   end # module Support
