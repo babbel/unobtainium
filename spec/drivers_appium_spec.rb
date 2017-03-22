@@ -108,6 +108,30 @@ describe ::Unobtainium::Drivers::Appium do
       let(:caps2) { { foo: 123 } }
       let(:caps3) { { foo: "bar" } }
 
+      it "adds javascript enabled if testdroid is in un-nested capabilities" do
+        desired_caps = {
+          'testdroid_username' => 'banana',
+          'url' => 'foo.bar.com',
+        }
+
+        _, resolved = tester.resolve_options(:ios, desired_caps)
+        expect(resolved[:javascript_enabled]).to be true
+      end
+
+      it "adds javascript enabled if testdroid is in nested capabilities" do
+        opts = {
+          appium_lib: {
+            server_url: 'foo.bar.com'
+          },
+          desired_capabilities: {
+            testdroid_username: 'banana'
+          }
+        }
+
+        _, resolved = tester.resolve_options(:ios, opts)
+        expect(resolved[:javascript_enabled]).to be true
+      end
+
       it "creates :caps from :desired_capabilities" do
         _, resolved = tester.resolve_options(:ios, desired_capabilities: caps1)
 
