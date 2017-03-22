@@ -108,28 +108,37 @@ describe ::Unobtainium::Drivers::Appium do
       let(:caps2) { { foo: 123 } }
       let(:caps3) { { foo: "bar" } }
 
-      it "adds javascript enabled if testdroid is in un-nested capabilities" do
-        desired_caps = {
-          'testdroid_username' => 'banana',
-          'url' => 'foo.bar.com',
-        }
-
-        _, resolved = tester.resolve_options(:ios, desired_caps)
-        expect(resolved[:javascript_enabled]).to be true
+      shared_examples :adding_javascript_enabled do
+        it "adds javascript enabled" do
+          _, resolved = tester.resolve_options(:ios, options)
+          expect(resolved[:javascript_enabled]).to be true
+        end
       end
 
-      it "adds javascript enabled if testdroid is in nested capabilities" do
-        opts = {
-          appium_lib: {
-            server_url: 'foo.bar.com'
-          },
-          desired_capabilities: {
-            testdroid_username: 'banana'
+      context "when testdroid is in un-nested capabilities" do
+        let(:options) do
+          {
+            'testdroid_username' => 'banana',
+            'url' => 'foo.bar.com',
           }
-        }
+        end
 
-        _, resolved = tester.resolve_options(:ios, opts)
-        expect(resolved[:javascript_enabled]).to be true
+        it_behaves_like :adding_javascript_enabled
+      end
+
+      context "when testdroid is in nested capabilities" do
+        let(:options) do
+          {
+            appium_lib: {
+              server_url: 'foo.bar.com'
+            },
+            desired_capabilities: {
+              testdroid_username: 'banana'
+            }
+          }
+        end
+
+        it_behaves_like :adding_javascript_enabled
       end
 
       it "creates :caps from :desired_capabilities" do
