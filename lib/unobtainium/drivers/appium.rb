@@ -17,19 +17,15 @@ module Unobtainium
   module Drivers
 
     def self.testdroid_testrun?(options)
-      options.keys.each do |key|
+      options.each do |key, value|
         # if this key matches testdroid
-        if key.to_s.include? 'testdroid'
-          return true
-        end
+        return true if key.to_s.include? 'testdroid'
+
         # if this key is nil or does not respond to 'keys' we can stop searching
-        if options[key].nil? || !options[key].respond_to?('keys')
-          next
-        end
+        next if value.nil? || !value.respond_to?('keys')
+
         # we search all keys of this hash
-        if options[key].keys.any? { |x| x.to_s.include? 'testdroid' }
-          return true
-        end
+        return true if value.keys.any? { |k| k.to_s.include? 'testdroid' }
       end
       false
     end
