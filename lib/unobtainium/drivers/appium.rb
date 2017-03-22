@@ -16,14 +16,22 @@ module Unobtainium
   # Contains driver implementations
   module Drivers
 
-    public
-
     def self.testdroid_testrun?(options)
-      if options.key?(:caps)
-        options[:caps].keys.any? { |x| x.to_s.include? 'testdroid' }
-      else
-        false
+      options.keys.each do |key|
+        # if this key matches testdroid
+        if key.to_s.include? 'testdroid'
+          return true
+        end
+        # if this key is nil or does not respond to 'keys' we can stop searching
+        if options[key].nil? || !options[key].respond_to?('keys')
+          next
+        end
+        # we search all keys of this hash
+        if options[key].keys.any? { |x| x.to_s.include? 'testdroid' }
+          return true
+        end
       end
+      false
     end
 
     ##
@@ -44,7 +52,7 @@ module Unobtainium
         attr_reader :appium_driver, :selenium_driver
         # Initialize
         def initialize(driver, compatibility)
-          options = {caps: driver.instance_variable_get(:@caps).instance_variable_get(:@capabilities)}
+          options = { caps: driver.instance_variable_get(:@caps).instance_variable_get(:@capabilities) }
 
           @appium_driver = driver
           begin
@@ -65,7 +73,6 @@ module Unobtainium
           else
             @drivers = [@appium_driver, @selenium_driver]
           end
-
         end
 
         ##
@@ -131,6 +138,18 @@ module Unobtainium
           !option.nil? and !option.empty?
         end
 
+        def add_javascript_enabled_capabilities(old_caps)
+          [:caps, "desired_capabilities"].each do |key|
+            if !old_caps.key?(key)
+              old_caps[key] = {}
+            end
+          end
+          old_caps["desired_capabilities"] = old_caps["desired_capabilities"].merge(javascript_enabled: true)
+          old_caps[:caps] = old_caps[:caps].merge(javascript_enabled: true)
+          old_caps[:javascript_enabled] = true
+          old_caps
+        end
+
         ##
         # Sanitize options, and expand the :browser key, if present.
         def resolve_options(label, options)
@@ -138,8 +157,10 @@ module Unobtainium
           normalized = normalize_label(label)
           options = ::Collapsium::UberHash.new(options || {})
 
-          # if it's testdroid, we do not change and merge anything here
-          unless Unobtainium::Drivers.testdroid_testrun? options
+          # if it's testdroid, we add the javascript_enabled capability
+          if Unobtainium::Drivers.testdroid_testrun? options
+            options = add_javascript_enabled_capabilities(options)
+          else # otherwise, we do the old fashioned recursive_merge on all the capabilities
             # Merge 'caps' and 'desired_capabilities' into :caps, but leave the
             # other one untouched
             options[:caps] = ::Collapsium::UberHash.new(options['desired_capabilities'])
@@ -147,10 +168,6 @@ module Unobtainium
                                                    .recursive_merge(options[:caps])
             options.delete(:desired_capabilities)
             options.delete('desired_capabilities')
-          else
-            options["desired_capabilities"] = options["desired_capabilities"].merge(javascript_enabled: true)
-            options[:caps] = options[:caps].merge(javascript_enabled: true)
-            options[:javascript_enabled] = true
           end
 
           # The label specifies the platform, if no other platform is given.
