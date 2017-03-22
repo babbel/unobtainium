@@ -148,8 +148,8 @@ module Unobtainium
             options.delete(:desired_capabilities)
             options.delete('desired_capabilities')
           else
-            options["desired_capabilities"] = options["desired_capabilities"].merge({javascript_enabled: true})
-            options[:caps] = options[:caps].merge({javascript_enabled: true})
+            options["desired_capabilities"] = options["desired_capabilities"].merge(javascript_enabled: true)
+            options[:caps] = options[:caps].merge(javascript_enabled: true)
             options[:javascript_enabled] = true
           end
 
