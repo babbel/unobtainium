@@ -15,7 +15,14 @@ module Unobtainium
       # Given a label and a set of options, generate a unique identifier
       # string.
       def identifier(scope, label, options = nil)
-        digest = { label: label, options: options }
+        caps = nil
+        if options.has_key? "desired_capabilities"
+          caps = options["desired_capabilities"]
+        end
+        if caps
+          options = { desired_capabilities: caps }
+        end
+        digest = { label: label.to_sym, options: options }
         require 'digest/sha1'
         digest = Digest::SHA1.hexdigest(digest.to_s)
         return "#{scope}-#{digest}"
