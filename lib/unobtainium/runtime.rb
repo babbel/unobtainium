@@ -35,6 +35,12 @@ module Unobtainium
       end
     end
 
+    #
+    ## @return [Hash] hash of string-string pairs: @objects
+    def objects
+      @objects
+    end
+
     ##
     # @return [Integer] number of objects stored in the object map
     def length
