@@ -124,6 +124,14 @@ module Unobtainium
 
     private
 
+    def clean_chrome_args(options)
+      options[:desired_capabilities]["chromeOptions"]["args"].uniq!
+      options[:caps]["chromeOptions"]["args"].uniq!
+      options
+    rescue
+      options
+    end
+
     ##
     # World's own option resolution ensures that the same options always get
     # resolved the same, by storing anything resolved from Driver in the Runtime
@@ -138,6 +146,7 @@ module Unobtainium
       # Make sure we have options matching the driver
       if options.nil?
         options = config["drivers.#{label}"]
+        options = clean_chrome_args options
       end
 
       # The merged/extended options might define a "base"; that's the label
@@ -183,6 +192,7 @@ module Unobtainium
         stored_opts = ::Unobtainium::Runtime.instance.fetch(option_key)
         options = ::Collapsium::UberHash.new(options)
         options.recursive_merge!(stored_opts)
+        clean_chrome_args options
       rescue KeyError # rubocop:disable Lint/HandleExceptions
       end
 
