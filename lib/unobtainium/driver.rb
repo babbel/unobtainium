@@ -278,6 +278,7 @@ module Unobtainium
         opts = @options.dup
         opts.delete('unobtainium_instance_id')
       end
+
       @impl = driver_klass.create(@label, opts)
 
       # Now also extend this implementation with all the modues that match

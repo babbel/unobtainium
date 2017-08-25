@@ -13,6 +13,7 @@ require 'collapsium-config'
 require 'unobtainium/driver'
 require 'unobtainium/runtime'
 require 'unobtainium/support/identifiers'
+require 'unobtainium/support/util'
 
 module Unobtainium
   ##
@@ -76,6 +77,7 @@ module Unobtainium
     extend ClassMethods
 
     include ::Unobtainium::Support::Identifiers
+    include ::Unobtainium::Support::Utility
 
     ##
     # (see Driver#create)
@@ -123,14 +125,6 @@ module Unobtainium
     end
 
     private
-
-    def clean_chrome_args(options)
-      options[:desired_capabilities]["chromeOptions"]["args"].uniq!
-      options[:caps]["chromeOptions"]["args"].uniq!
-      options
-    rescue
-      options
-    end
 
     ##
     # World's own option resolution ensures that the same options always get
@@ -181,8 +175,9 @@ module Unobtainium
         options["desired_capabilities"] = options[:caps]
       end
 
-      label, options_new, _ = ::Unobtainium::Driver.resolve_options(label, options)
-      option_key = identifier('options', label, options_new)
+      label, options, _ = ::Unobtainium::Driver.resolve_options(label, options)
+      options = clean_chrome_args options
+      option_key = identifier('options', label, options)
 
       # Do we have options already resolved?
       # then we take what we already have together with the options from the
@@ -192,7 +187,7 @@ module Unobtainium
         stored_opts = ::Unobtainium::Runtime.instance.fetch(option_key)
         options = ::Collapsium::UberHash.new(options)
         options.recursive_merge!(stored_opts)
-        clean_chrome_args options
+        options = clean_chrome_args options
       rescue KeyError # rubocop:disable Lint/HandleExceptions
       end
 

@@ -38,6 +38,33 @@ module Unobtainium
         end
         return nil
       end
+
+      def clean_chrome_args(options)
+        optionscopy = Collapsium::Config::Configuration.new(options)
+        [:desired_capabilities, :caps].each do |index|
+          begin
+            optionscopy[index]["chromeOptions"]["args"].uniq!
+          rescue NoMethodError
+          end
+        end
+        optionscopy
+      end
+
+      def transform_string_to_symbol_index(options)
+        if options.keys.all? { |key| key.class.name == 'Symbol' }
+          # nothing to do, all keys are symbols already
+          return options
+        end
+        optionscopy = Collapsium::Config::Configuration.new(options)
+        begin
+          caps = options["desired_capabilities"]
+          optionscopy.delete "desired_capabilities"
+          optionscopy[:desired_capabilities] = caps
+        rescue NoMethodError
+        end
+        optionscopy
+      end
+
     end # module Utility
   end # module Support
 end # module Unobtainium

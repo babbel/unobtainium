@@ -55,22 +55,6 @@ module Unobtainium
                 err.backtrace
         end
 
-        def clean_chrome_args(options)
-          options["desired_capabilities"]["chromeOptions"]["args"].uniq!
-          options
-        rescue
-          options
-        end
-
-        def transform_string_to_symbol_index(options)
-          caps = options["desired_capabilities"]
-          options.delete "desired_capabilities"
-          options[:desired_capabilities] = caps
-          options
-        rescue
-          options
-        end
-
         ##
         # Selenium really wants symbol keys for the options
         def resolve_options(label, orig_options)
@@ -80,7 +64,7 @@ module Unobtainium
 
           # Normalize label and options
           normalized = normalize_label(label)
-          options = ::Collapsium::UberHash.new(orig_options || {})
+          options = ::Collapsium::UberHash.new(options || {})
 
           # Merge 'caps' and 'desired_capabilities', letting the latter win
           options[:desired_capabilities] =
@@ -92,8 +76,6 @@ module Unobtainium
 
           # Chromium is chrome, but with a different binary. Help with that.
           label, options = supplement_chromium(normalized, options)
-          # clean options again
-          options = clean_chrome_args options
 
           # Selenium expects the first level keys to be symbols *only*, so
           # indifferent access from UberHash isn't good. We have to fix that.
