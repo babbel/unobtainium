@@ -1,11 +1,10 @@
 # coding: utf-8
-#
+
 # unobtainium
 # https://github.com/jfinkhaeuser/unobtainium
-#
 # Copyright (c) 2016 Jens Finkhaeuser and other unobtainium contributors.
 # All rights reserved.
-#
+
 module Unobtainium
   # @api private
   # Contains support code
@@ -41,10 +40,10 @@ module Unobtainium
 
       def clean_chrome_args(options)
         optionscopy = Collapsium::Config::Configuration.new(options)
-        [:desired_capabilities, :caps].each do |index|
+        %i[desired_capabilities caps].each do |index|
           begin
             optionscopy[index]["chromeOptions"]["args"].uniq!
-          rescue NoMethodError
+          rescue NoMethodError # rubocop:disable Lint/HandleExceptions
           end
         end
         optionscopy
@@ -60,7 +59,7 @@ module Unobtainium
           caps = options["desired_capabilities"]
           optionscopy.delete "desired_capabilities"
           optionscopy[:desired_capabilities] = caps
-        rescue NoMethodError
+        rescue NoMethodError # rubocop:disable Lint/HandleExceptions
         end
         optionscopy
       end

@@ -1,6 +1,7 @@
 require 'spec_helper'
 require_relative '../lib/unobtainium/runtime'
 
+# this is the Foo class
 # rubocop:disable Style/ClassVars
 class Foo
   @@instances = 0

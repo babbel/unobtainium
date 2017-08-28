@@ -1,11 +1,10 @@
 # coding: utf-8
-#
+
 # unobtainium
 # https://github.com/jfinkhaeuser/unobtainium
-#
 # Copyright (c) 2016 Jens Finkhaeuser and other unobtainium contributors.
 # All rights reserved.
-#
+
 require 'unobtainium'
 
 require 'collapsium-config'
@@ -127,6 +126,28 @@ module Unobtainium
     private
 
     ##
+    # The merged/extended options might define a "base"; that's the label
+    # we need to use.
+    def replace_label_with_base_label_if_necessary(orig_label, options)
+      if options.nil? || options["base"].nil?
+        return orig_label
+      end
+
+      bases = options["base"]
+
+      # Collapsium config returns an Array of bases, but we really only want
+      # one. We'll have to do the sensible thing and only use one of the bases
+      # which also is a driver for the label. Since there's no better choice,
+      # let's default to the first of those.
+      bases.each do |base|
+        unless base.start_with?(".drivers.")
+          next
+        end
+        return base.gsub(/^\.drivers\./, '')
+      end
+    end
+
+    ##
     # World's own option resolution ensures that the same options always get
     # resolved the same, by storing anything resolved from Driver in the Runtime
     # instance (i.e. asking the Driver only once per unique set of label and
@@ -143,32 +164,13 @@ module Unobtainium
         options = clean_chrome_args options
       end
 
-      # The merged/extended options might define a "base"; that's the label
-      # we need to use.
-      if not options.nil? and not options["base"].nil?
-        bases = options["base"]
-
-        # Collapsium config returns an Array of bases, but we really only want
-        # one. We'll have to do the sensible thing and only use one of the bases
-        # which also is a driver for the label. Since there's no better choice,
-        # let's default to the first of those.
-        bases.each do |base|
-          if not base.start_with?(".drivers.")
-            next
-          end
-          label = base.gsub(/^\.drivers\./, '')
-          break
-        end
-
-        # Unfortunately, the "base" key may not be recognized by the drivers,
-        # which could lead to errors down the road. Let's remove it; it's reserved
-        # by the Config class, so drivers can't use it anyhow.
-        options = options.dup
-        options.delete("base")
-      end
+      label = replace_label_with_base_label_if_necessary(label, options)
+      # if there are options and options has the 'base' key, delete it
+      # since this is an UberHash, deleting a nonexistend property returns 'nil'
+      options.delete("base")
 
       # we really need :caps and "desired_capabilities" in our options
-      unless options.has_key?(:caps) # rubocop:disable Style/PreferredHashMethods
+      unless options.has_key?(:caps)
         options[:caps] = options["desired_capabilities"]
       end
       unless options.key?("desired_capabilities")

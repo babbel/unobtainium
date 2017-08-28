@@ -1,6 +1,7 @@
 require 'spec_helper'
 require_relative '../lib/unobtainium/drivers/appium'
 
+# this class mocks selenium
 class SeleniumMock
   def test
     return "selenium"
@@ -11,6 +12,7 @@ class SeleniumMock
   end
 end
 
+# this class mocks appium
 class AppiumMock
   def test
     return "appium"
@@ -30,14 +32,14 @@ describe ::Unobtainium::Drivers::Appium do
 
   context "#matches?" do
     it "matches all known aliases" do
-      aliases = [:ios, :iphone, :ipad, :android]
+      aliases = %i[ios iphone ipad android]
       aliases.each do |name|
         expect(tester.matches?(name)).to be_truthy
       end
     end
 
     it "does not match unknown names" do
-      unknown = [:foo, :bar, :appium, :phantomjs, :headless]
+      unknown = %i[foo bar appium phantomjs headless]
       unknown.each do |name|
         expect(tester.matches?(name)).to be_falsey
       end

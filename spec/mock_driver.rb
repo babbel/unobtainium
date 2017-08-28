@@ -1,3 +1,4 @@
+# this is the mock class
 class Mock
   attr_accessor :passed_options
 
@@ -8,6 +9,7 @@ class Mock
   def quit; end
 end
 
+# this is the mockdriver class
 # rubocop:disable Style/GuardClause
 class MockDriver
   class << self
@@ -27,6 +29,7 @@ class MockDriver
   end
 end # class MockDriver
 
+# this is the option resolving mock driver
 class OptionResolvingMockDriver < MockDriver
   class << self
     def matches?(label)

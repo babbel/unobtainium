@@ -1,11 +1,9 @@
 # coding: utf-8
-#
+
 # unobtainium
 # https://github.com/jfinkhaeuser/unobtainium
-#
 # Copyright (c) 2016 Jens Finkhaeuser and other unobtainium contributors.
 # All rights reserved.
-#
 
 require 'collapsium'
 
@@ -21,8 +19,8 @@ module Unobtainium
     class Selenium
       # Recognized labels for matching the driver
       LABELS = {
-        firefox: [:ff,],
-        internet_explorer: [:internetexplorer, :explorer, :ie,],
+        firefox: %i[ff],
+        internet_explorer: %i[internetexplorer explorer ie],
         safari: [],
         chrome: [],
         chromium: [],
@@ -42,7 +40,7 @@ module Unobtainium
         # Return true if the given label matches this driver implementation,
         # false otherwise.
         def matches?(label)
-          return nil != normalize_label(label)
+          return !normalize_label(label).nil?
         end
 
         ##
@@ -112,7 +110,7 @@ module Unobtainium
         # options pointing to the chromium binary.
         def supplement_chromium(label, options)
           # Only applies to :chromium
-          if :chromium != label
+          if label != :chromium
             return label, options
           end
 
@@ -134,7 +132,7 @@ module Unobtainium
           end
 
           set_binary = options['desired_capabilities.chromeOptions.binary']
-          if set_binary and not set_binary == binary
+          if set_binary && set_binary != binary
             # There's already a binary set. We should warn about this, but
             # otherwise leave this choice.
             warn "You have the chrome binary '#{set_binary}' set in your "\
