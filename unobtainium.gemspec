@@ -52,6 +52,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "phantomjs"
   spec.add_development_dependency "cucumber"
   spec.add_development_dependency "nokogiri", "~>1.6.8"
+  spec.add_development_dependency "byebug"
 
   spec.add_dependency "ptools", "~> 1.3"
   spec.add_dependency "collapsium", "~> 0.8"
