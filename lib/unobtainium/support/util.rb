@@ -39,7 +39,7 @@ module Unobtainium
       end
 
       def clean_chrome_args(options)
-        optionscopy = Collapsium::Config::Configuration.new(options)
+        optionscopy = ::Collapsium::Config::Configuration.new(options)
         %i[desired_capabilities caps].each do |index|
           begin
             optionscopy[index]["chromeOptions"]["args"].uniq!
@@ -50,16 +50,17 @@ module Unobtainium
       end
 
       def transform_string_to_symbol_index(options)
-        if options.keys.all? { |key| key.class.name == 'Symbol' }
-          # nothing to do, all keys are symbols already
+        if options.nil? || options.keys.all? { |key| key.class.name == 'Symbol' }
+          # nothing to do, options are nil, or all keys are symbols already
           return options
         end
-        optionscopy = Collapsium::Config::Configuration.new(options)
-        begin
-          caps = options["desired_capabilities"]
-          optionscopy.delete "desired_capabilities"
-          optionscopy[:desired_capabilities] = caps
-        rescue NoMethodError # rubocop:disable Lint/HandleExceptions
+        optionscopy = ::Collapsium::Config::Configuration.new(options)
+        options.keys.each do |key|
+          if key.class.name == 'Symbol'
+            next
+          end
+          optionscopy.delete key
+          optionscopy[key.to_sym] = options[key]
         end
         optionscopy
       end

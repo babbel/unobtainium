@@ -1,4 +1,6 @@
 require 'spec_helper'
+require 'collapsium-config'
+
 require_relative '../lib/unobtainium/drivers/phantom'
 
 # this class mocks selenium

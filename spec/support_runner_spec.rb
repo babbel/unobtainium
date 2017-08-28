@@ -19,8 +19,7 @@ describe ::Unobtainium::Support::Runner do
     expect(runner.pid).to be_nil
     runner.start
     expect(runner.pid).not_to be_nil
-    # TODO: fixme?
-    expect(runner.pid).to be.positive?
+    expect(runner.pid).to be > 0
     runner.wait
     expect(runner.pid).to be_nil
   end
