@@ -7,8 +7,7 @@ describe ::Unobtainium::Support::PortScanner do
   # This Socket#connect mock finds port 1234 or 4321 open
   def connect_mock(_, addr)
     port, = Socket.unpack_sockaddr_in(addr)
-    correct_ports = [1234, 4321]
-    if correct_ports.include? port
+    if [1234, 4321].include?(port)
       raise Errno::EISCONN
     end
     raise Errno::ECONNREFUSED

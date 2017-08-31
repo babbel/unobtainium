@@ -40,7 +40,7 @@ module Unobtainium
       # @param port [Integer] port number (1..65535)
       # @param domains [Array/Symbol] :INET, :INET6, etc. or an Array of
       #     these. Any from Socket::Constants::AF_* work. Defaults to
-      #     [:INET, :INET6].
+      #     %i[INET INET6].
       def port_open?(host, port, domains = %i[INET INET6])
         if port < 1 or port > 65535
           raise ArgumentError, "Port must be in range 1..65535!"

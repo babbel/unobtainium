@@ -9,7 +9,8 @@ describe ::Unobtainium::Drivers::Selenium do
   context "#matches?" do
     it "matches all known aliases" do
       aliases = %i[
-        firefox ff internet_explorer internetexplorer explorer ie safari chrome chromium
+        firefox ff internet_explorer internetexplorer explorer
+        ie safari chrome chromium
       ]
       aliases.each do |name|
         expect(tester.matches?(name)).to be_truthy

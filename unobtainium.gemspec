@@ -9,8 +9,8 @@ lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'unobtainium/version'
 
-# rubocop:disable Style/UnneededPercentQ, Style/ExtraSpacing
-# rubocop:disable Style/SpaceAroundOperators
+# rubocop:disable Style/UnneededPercentQ, Layout/ExtraSpacing
+# rubocop:disable Layout/SpaceAroundOperators
 Gem::Specification.new do |spec|
   spec.name          = "unobtainium"
   spec.version       = Unobtainium::VERSION
@@ -40,11 +40,11 @@ Gem::Specification.new do |spec|
   spec.requirements  = "Either or all of 'selenium-webdriver', 'appium_lib', "\
                        "'phantomjs'"
 
-  spec.add_development_dependency "bundler", "~> 1.14"
-  spec.add_development_dependency "rubocop", "~> 0.46"
+  spec.add_development_dependency "bundler", "~> 1.15"
+  spec.add_development_dependency "rubocop", "~> 0.49"
   spec.add_development_dependency "rake", "~> 11.3"
-  spec.add_development_dependency "rspec", "~> 3.5"
-  spec.add_development_dependency "simplecov", "~> 0.12"
+  spec.add_development_dependency "rspec", "~> 3.6"
+  spec.add_development_dependency "simplecov", "~> 0.13"
   spec.add_development_dependency "yard", "~> 0.9"
   spec.add_development_dependency "appium_lib"
   spec.add_development_dependency "selenium-webdriver"
@@ -55,9 +55,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "byebug"
 
   spec.add_dependency "ptools", "~> 1.3"
-  spec.add_dependency "collapsium", "~> 0.8"
-  spec.add_dependency "collapsium-config", "~> 0.5"
+  spec.add_dependency "collapsium", "~> 0.9"
+  spec.add_dependency "collapsium-config", "~> 0.6"
 end
-# rubocop:enable Metrics/BlockLength
-# rubocop:enable Style/SpaceAroundOperators
-# rubocop:enable Style/UnneededPercentQ, Style/ExtraSpacing
+# rubocop:enable Layout/SpaceAroundOperators
+# rubocop:enable Style/UnneededPercentQ, Layout/ExtraSpacing

@@ -6,7 +6,7 @@ class Tester
   LABELS = {
     noalias: [],
     aliases: %i[foo bar],
-    conflict: [:bar]
+    conflict: %i[bar]
   }.freeze
 
   extend ::Unobtainium::Support::Utility
