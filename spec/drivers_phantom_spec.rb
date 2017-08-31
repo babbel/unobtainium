@@ -1,6 +1,9 @@
 require 'spec_helper'
+require 'collapsium-config'
+
 require_relative '../lib/unobtainium/drivers/phantom'
 
+# this class mocks selenium
 class SeleniumMock
   def test
     return "selenium"
@@ -11,6 +14,7 @@ class SeleniumMock
   end
 end
 
+# this class mocks appium
 class AppiumMock
   def test
     return "appium"
@@ -30,14 +34,14 @@ describe ::Unobtainium::Drivers::Phantom do
 
   context "#matches?" do
     it "matches all known aliases" do
-      aliases = [:phantomjs, :headless, :phantom]
+      aliases = %i[phantomjs headless phantom]
       aliases.each do |name|
         expect(tester.matches?(name)).to be_truthy
       end
     end
 
     it "does not match unknown names" do
-      unknown = [:foo, :bar, :appium, :selenium, :ios]
+      unknown = %i[foo bar appium selenium ios]
       unknown.each do |name|
         expect(tester.matches?(name)).to be_falsey
       end

@@ -1,10 +1,11 @@
 require 'spec_helper'
 require_relative '../lib/unobtainium/support/util'
 
+# this is the Tester class
 class Tester
   LABELS = {
     noalias: [],
-    aliases: [:foo, :bar],
+    aliases: %i[foo bar],
     conflict: [:bar]
   }.freeze
 

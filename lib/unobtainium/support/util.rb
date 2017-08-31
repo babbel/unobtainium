@@ -1,11 +1,10 @@
 # coding: utf-8
-#
+
 # unobtainium
 # https://github.com/jfinkhaeuser/unobtainium
-#
 # Copyright (c) 2016 Jens Finkhaeuser and other unobtainium contributors.
 # All rights reserved.
-#
+
 module Unobtainium
   # @api private
   # Contains support code
@@ -38,6 +37,34 @@ module Unobtainium
         end
         return nil
       end
+
+      def clean_chrome_args(options)
+        optionscopy = ::Collapsium::Config::Configuration.new(options)
+        %i[desired_capabilities caps].each do |index|
+          begin
+            optionscopy[index]["chromeOptions"]["args"].uniq!
+          rescue NoMethodError # rubocop:disable Lint/HandleExceptions
+          end
+        end
+        optionscopy
+      end
+
+      def transform_string_to_symbol_index(options)
+        if options.nil? || options.keys.all? { |key| key.class.name == 'Symbol' }
+          # nothing to do, options are nil, or all keys are symbols already
+          return options
+        end
+        optionscopy = ::Collapsium::Config::Configuration.new(options)
+        options.keys.each do |key|
+          if key.class.name == 'Symbol'
+            next
+          end
+          optionscopy.delete key
+          optionscopy[key.to_sym] = options[key]
+        end
+        optionscopy
+      end
+
     end # module Utility
   end # module Support
 end # module Unobtainium

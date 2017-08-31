@@ -1,11 +1,10 @@
 # coding: utf-8
-#
+
 # unobtainium
 # https://github.com/jfinkhaeuser/unobtainium
-#
 # Copyright (c) 2016 Jens Finkhaeuser and other unobtainium contributors.
 # All rights reserved.
-#
+
 module Unobtainium
 
   ##
@@ -278,6 +277,7 @@ module Unobtainium
         opts = @options.dup
         opts.delete('unobtainium_instance_id')
       end
+
       @impl = driver_klass.create(@label, opts)
 
       # Now also extend this implementation with all the modues that match
@@ -296,15 +296,15 @@ module Unobtainium
     # rubocop:enable Style/ClassVars
 
     # Methods that drivers must implement
-    DRIVER_METHODS = [
-      :matches?,
-      :ensure_preconditions,
-      :create
+    DRIVER_METHODS = %i[
+      matches?
+      ensure_preconditions
+      create
     ].freeze
 
     # Methods that driver modules must implement
-    MODULE_METHODS = [
-      :matches?
+    MODULE_METHODS = %i[
+      matches?
     ].freeze
   end # class Driver
 end # module Unobtainium

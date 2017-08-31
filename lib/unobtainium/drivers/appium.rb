@@ -1,11 +1,9 @@
 # coding: utf-8
-#
+
 # unobtainium
 # https://github.com/jfinkhaeuser/unobtainium
-#
 # Copyright (c) 2016 Jens Finkhaeuser and other unobtainium contributors.
 # All rights reserved.
-#
 
 require 'collapsium'
 
@@ -96,7 +94,7 @@ module Unobtainium
 
       # Recognized labels for matching the driver
       LABELS = {
-        ios: [:iphone, :ipad],
+        ios: %i[iphone ipad],
         android: [],
       }.freeze
 
@@ -117,7 +115,7 @@ module Unobtainium
         # Return true if the given label matches this driver implementation,
         # false otherwise.
         def matches?(label)
-          return nil != normalize_label(label)
+          return !normalize_label(label).nil?
         end
 
         ##

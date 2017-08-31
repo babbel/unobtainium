@@ -76,3 +76,6 @@ Style/SpaceAfterNot:
 
 Style/FrozenStringLiteralComment:
   Enabled: false
+
+Style/PreferredHashMethods:
+  Enabled: false

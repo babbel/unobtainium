@@ -95,7 +95,7 @@ details.
   at the same time.
 - [unobtainium-multiwait](https://github.com/jfinkhaeuser/unobtainium-multiwait)
   based on `multifind`, simplifies waiting for an element to appear.
-  
+
 # Integrations
 
 - [unobtainium-cucumber](https://github.com/jfinkhaeuser/unobtainium-cucumber)

@@ -1,11 +1,9 @@
 # coding: utf-8
-#
+
 # unobtainium
 # https://github.com/jfinkhaeuser/unobtainium
-#
 # Copyright (c) 2016 Jens Finkhaeuser and other unobtainium contributors.
 # All rights reserved.
-#
 
 require 'collapsium'
 
@@ -21,8 +19,8 @@ module Unobtainium
     class Selenium
       # Recognized labels for matching the driver
       LABELS = {
-        firefox: [:ff,],
-        internet_explorer: [:internetexplorer, :explorer, :ie,],
+        firefox: %i[ff],
+        internet_explorer: %i[internetexplorer explorer ie],
         safari: [],
         chrome: [],
         chromium: [],
@@ -42,7 +40,7 @@ module Unobtainium
         # Return true if the given label matches this driver implementation,
         # false otherwise.
         def matches?(label)
-          return nil != normalize_label(label)
+          return !normalize_label(label).nil?
         end
 
         ##
@@ -58,9 +56,13 @@ module Unobtainium
         ##
         # Selenium really wants symbol keys for the options
         def resolve_options(label, orig_options)
+          # cleanup orig_options
+          options = transform_string_to_symbol_index orig_options
+          options = clean_chrome_args options
+
           # Normalize label and options
           normalized = normalize_label(label)
-          options = ::Collapsium::UberHash.new(orig_options || {})
+          options = ::Collapsium::UberHash.new(options || {})
 
           # Merge 'caps' and 'desired_capabilities', letting the latter win
           options[:desired_capabilities] =
@@ -84,6 +86,7 @@ module Unobtainium
         # Create and return a driver instance
         def create(label, options)
           # :nocov:
+          puts "creating driver with #{options}"
           driver = ::Selenium::WebDriver.for(normalize_label(label), options)
           return driver
           # :nocov:
@@ -107,7 +110,7 @@ module Unobtainium
         # options pointing to the chromium binary.
         def supplement_chromium(label, options)
           # Only applies to :chromium
-          if :chromium != label
+          if label != :chromium
             return label, options
           end
 
@@ -129,7 +132,7 @@ module Unobtainium
           end
 
           set_binary = options['desired_capabilities.chromeOptions.binary']
-          if set_binary and not set_binary == binary
+          if set_binary && set_binary != binary
             # There's already a binary set. We should warn about this, but
             # otherwise leave this choice.
             warn "You have the chrome binary '#{set_binary}' set in your "\

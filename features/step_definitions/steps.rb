@@ -1,11 +1,9 @@
 # coding: utf-8
-#
+
 # unobtainium
 # https://github.com/jfinkhaeuser/unobtainium
-#
 # Copyright (c) 2016 Jens Finkhaeuser and other unobtainium contributors.
 # All rights reserved.
-#
 
 def store_ids(the_driver = driver)
   @driver_ids ||= []
@@ -31,10 +29,10 @@ When(/^I navigate to the best website in the world again$/) do
 end
 
 Then(/^I expect the driver in each case to be the same$/) do
-  if not @driver_ids[0] == @driver_ids[1]
+  unless @driver_ids[0] == @driver_ids[1]
     raise "Driver instance changed!"
   end
-  if not @driver_impl_ids[0] == @driver_impl_ids[1]
+  unless @driver_impl_ids[0] == @driver_impl_ids[1]
     raise "Driver implementation instance changed!"
   end
 end

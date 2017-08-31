@@ -5,6 +5,7 @@ require_relative './mock_driver.rb'
 class FakeDriver
 end # class FakeDriver
 
+# this is the TestModule
 module TestModule
   class << self
     def matches?(_)
@@ -16,6 +17,7 @@ module TestModule
   def my_module_func; end
 end # module TestModule
 
+# this is the NonMatchingTestModule
 module NonMatchingTestModule
   class << self
     def matches?(_)
@@ -27,6 +29,7 @@ module NonMatchingTestModule
   def does_not_exist; end
 end # module NonMatchingTestModule
 
+# this is the FakeModule
 module FakeModule
 end # module FakeModule
 
