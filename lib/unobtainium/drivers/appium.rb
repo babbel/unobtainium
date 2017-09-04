@@ -197,11 +197,12 @@ module Unobtainium
           options.delete(:webdriver_compatibility)
 
           # Create & return proxy
-          driver = ::Appium::Driver.new(options)
+          driver = ::Appium::Driver.new(options, true)
           # testdroid does not accept :symbol capabilities
           if Unobtainium::Drivers.testdroid_testrun? options
+            # TODO: maybe change to Selenium::WebDriver::Remote::W3C::Capabilities
             new_caps = Unobtainium::Drivers::Selenium.construct_desired_caps_for_testdroid options
-            driver.caps = new_caps
+            driver.instance_variable_set("@caps", new_caps)
           end
 
           return DriverProxy.new(driver, compat).appium_driver

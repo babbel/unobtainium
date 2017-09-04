@@ -7,5 +7,5 @@
 
 module Unobtainium
   # The current release version
-  VERSION = "0.12.2-babbel".freeze
+  VERSION = "0.12.3-babbel".freeze
 end
