@@ -178,6 +178,11 @@ module Unobtainium
       end
 
       label, options, _ = ::Unobtainium::Driver.resolve_options(label, options)
+      begin
+        options.delete :args
+        options.delete :prefs
+      rescue KeyError
+      end
       options = clean_chrome_args options
       option_key = identifier('options', label, options)
 
