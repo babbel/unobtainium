@@ -61,7 +61,7 @@ GEM
     ptools (1.3.4)
     rainbow (2.2.2)
       rake
-    rake (11.3.0)
+    rake (13.0.1)
     rspec (3.6.0)
       rspec-core (~> 3.6.0)
       rspec-expectations (~> 3.6.0)
@@ -109,7 +109,7 @@ DEPENDENCIES
   cucumber
   nokogiri (~> 1.10.9)
   phantomjs
-  rake (~> 11.3)
+  rake (~> 13.0)
   rspec (~> 3.6)
   rubocop (~> 0.49)
   selenium-webdriver
